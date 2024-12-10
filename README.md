@@ -1,1 +1,1 @@
-# leetgrinder
+# Leet Grinder - Browser Extension
