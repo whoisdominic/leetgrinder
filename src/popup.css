@@ -1,11 +1,13 @@
+@import "tailwindcss";
+
 html,
 body {
-  width: 360px;
+  width: 460px;
   height: 550px;
   padding: 0;
   margin: 0;
 }
 
 body {
-  background-color: rgb(36, 36, 36);
+  background-color: transparent;
 }

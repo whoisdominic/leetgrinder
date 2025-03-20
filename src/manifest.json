@@ -17,5 +17,7 @@
   "background": {
     "{{chrome}}.service_worker": "src/background.ts",
     "{{firefox}}.scripts": ["src/background.ts"]
-  }
+  },
+  "permissions": ["tabs", "activeTab", "scripting"],
+  "host_permissions": ["https://leetcode.com/*"]
 }
