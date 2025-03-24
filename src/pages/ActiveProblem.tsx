@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import airtableService, {
   AirtableProblem,
   Comfort,
+  ProblemType,
 } from "../services/AirtableService";
 
 const ProblemStats: React.FC<{ problem: AirtableProblem }> = ({ problem }) => {
@@ -24,7 +25,7 @@ const ProblemStats: React.FC<{ problem: AirtableProblem }> = ({ problem }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4 bg-gray-800/50 p-4 rounded-lg">
+    <div className="flex flex-col gap-4 bg-gray-800/50 p-4 rounded-lg w-full">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Problem Stats</h3>
         <span
@@ -72,9 +73,17 @@ const ProblemStats: React.FC<{ problem: AirtableProblem }> = ({ problem }) => {
 export function ActiveProblem() {
   const isLeetCodeProblem = useAppStore((state) => state.isLeetCodeProblem);
   const activeProblem = useAppStore((state) => state.activeProblem);
+  const activeProblemDifficulty = useAppStore(
+    (state) => state.activeProblemDifficulty
+  );
+  const activeProblemType = useAppStore((state) => state.activeProblemType);
   const queryClient = useQueryClient();
 
-  const { data: problem, isLoading: isLoadingProblem } = useQuery({
+  const {
+    data: problem,
+    isLoading: isLoadingProblem,
+    isFetched: problemIsFetched,
+  } = useQuery({
     queryKey: ["problem", activeProblem],
     queryFn: () =>
       airtableService.getProblemByName(
@@ -98,6 +107,11 @@ export function ActiveProblem() {
     },
   });
 
+  const addProblemMutation = useMutation({
+    mutationFn: (problem: Omit<AirtableProblem, "id">) =>
+      airtableService.addProblemToAirtable(problem),
+  });
+
   const handleStarChange = (stars: number) => {
     if (problem?.id) {
       updateComfortMutation.mutate({
@@ -109,8 +123,23 @@ export function ActiveProblem() {
 
   const navigate = useNavigate();
 
+  function convertProblemType(problemType: string[]): ProblemType[] {
+    return problemType.map((type) => type as ProblemType);
+  }
+
   const handleAddProblem = () => {
-    console.log(activeProblem);
+    console.log("handleAddProblem", activeProblem, activeProblemDifficulty);
+    if (!activeProblem || !activeProblemDifficulty) return;
+    const problemPayload: Omit<AirtableProblem, "id"> = {
+      Name: transformProblemName(activeProblem || ""),
+      Difficulty: activeProblemDifficulty,
+      Comfort: 1,
+      "Problem Link": `https://leetcode.com/problems/${activeProblem}/description/`,
+      type: convertProblemType(activeProblemType),
+      "Problem Sets": [],
+    };
+
+    addProblemMutation.mutate(problemPayload);
   };
 
   useEffect(() => {
@@ -144,6 +173,16 @@ export function ActiveProblem() {
         </p>
       )}
       {problem && <ProblemStats problem={problem} />}
+      {problemIsFetched && isLeetCodeProblem && activeProblem && !problem && (
+        <div className="w-full max-w-md mt-4">
+          <button
+            onClick={handleAddProblem}
+            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors cursor-pointer"
+          >
+            Add Problem to Collection
+          </button>
+        </div>
+      )}
     </div>
   );
 }

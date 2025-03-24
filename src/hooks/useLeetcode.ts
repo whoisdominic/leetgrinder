@@ -12,6 +12,8 @@ export function useLeetcode({
     isLeetCodeProblem,
     setIsLeetCodeProblem,
     setActiveProblem,
+    setActiveProblemDifficulty,
+    setActiveProblemType,
   } = useAppStore();
 
   const navigate = useNavigate();
@@ -29,6 +31,68 @@ export function useLeetcode({
       setIsLeetCode(isLeetCode);
       setIsLeetCodeProblem(isLeetCode && url.pathname.includes("/problems/"));
       setActiveProblem(parseLeetCodeUrl(currentTab.url));
+
+      if (isLeetCode && currentTab.id) {
+        try {
+          // Execute script in the active tab to get both difficulty and problem types
+          const [{ result: pageInfo }] = await browser.scripting.executeScript({
+            target: { tabId: currentTab.id },
+            func: () => {
+              const difficultyDiv = document.querySelector(
+                'div[class*="text-difficulty-"]'
+              );
+              const difficulty = difficultyDiv?.textContent?.trim() || null;
+
+              // Get all problem type tags
+              const typeTags = Array.from(
+                document.querySelectorAll("div.mt-2.flex.flex-wrap.gap-1 a")
+              );
+              const types = typeTags.map((tag) => {
+                const text = (tag as HTMLElement).textContent?.trim() || "";
+                // Convert to match your type format (e.g., "Dynamic Programming" -> "Dynamic")
+                if (text === "Dynamic Programming") return "Dynamic";
+                return text;
+              });
+
+              return { difficulty, types };
+            },
+          });
+
+          if (
+            pageInfo.difficulty &&
+            ["Easy", "Medium", "Hard"].includes(pageInfo.difficulty)
+          ) {
+            setActiveProblemDifficulty(pageInfo.difficulty as any);
+          } else {
+            console.error("No valid difficulty found");
+            setActiveProblemDifficulty(null);
+          }
+
+          if (pageInfo.types && pageInfo.types.length > 0) {
+            setActiveProblemType(pageInfo.types);
+          } else {
+            console.error("No problem types found");
+            setActiveProblemType([]);
+          }
+        } catch (error) {
+          console.error("Error parsing page info:", error);
+          if (error instanceof Error) {
+            console.error("Error details:", {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            });
+          }
+          setActiveProblemDifficulty(null);
+          setActiveProblemType([]);
+        }
+      } else {
+        console.log(
+          "Not on LeetCode or no tab ID, setting difficulty and types to null"
+        );
+        setActiveProblemDifficulty(null);
+        setActiveProblemType([]);
+      }
     }
   };
 
