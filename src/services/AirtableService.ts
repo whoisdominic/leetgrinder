@@ -38,6 +38,7 @@ export interface AirtableProblem {
   "Problem Link": string;
   type: ProblemType[];
   "Problem Sets": string[];
+  "Last drilled": string;
 }
 
 class AirtableService {
@@ -100,6 +101,7 @@ class AirtableService {
             "Problem Link": record.get("Problem Link") as string,
             type: record.get("type") as ProblemType[],
             "Problem Sets": this.resolveProblemSetNames(problemSetIds),
+            "Last drilled": record.get("Last drilled") as string,
           };
           this.problemsCache.set(problem.Name, problem);
         });
@@ -122,6 +124,7 @@ class AirtableService {
     try {
       await this.base("All Problems").update(problemId, {
         Comfort: comfort,
+        "Last drilled": new Date().toISOString().split("T")[0],
       });
     } catch (error) {
       console.error("Error updating comfort:", error);
@@ -163,8 +166,9 @@ class AirtableService {
         Difficulty: records[0].get("Difficulty") as Difficulty,
         Comfort: records[0].get("Comfort") as Comfort,
         "Problem Link": records[0].get("Problem Link") as string,
-        type: records[0].get("type") as ProblemType[],
+        type: (records[0].get("type") as ProblemType[]) || [],
         "Problem Sets": this.resolveProblemSetNames(problemSetIds),
+        "Last drilled": records[0].get("Last drilled") as string,
       };
     } catch (error) {
       console.error("Error fetching problem by name:", error);
