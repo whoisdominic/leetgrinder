@@ -1,38 +1,23 @@
-import { BasicButton, PieChart } from "../components";
+import { useQuery } from "@tanstack/react-query";
+import {
+  BasicButton,
+  DifficultyPieChart,
+  ComfortPieChart,
+} from "../components";
 import { useLeetcode } from "../hooks";
-import { useAppStore } from "../state";
-import { LeetCodeProblem } from "../state/supabase";
+import airtableService from "../services/AirtableService";
 
 export function Dashboard() {
   useLeetcode({ autoNavigate: true });
-  const user = useAppStore((state) => state.user);
 
-  const data: LeetCodeProblem[] = [
-    {
-      id: "6",
-      name: "Zigzag Conversion",
-      difficulty: "medium",
-      problem_type: "String",
-      notes: "This is a test note",
-      last_solved: "2021-01-01",
-      best_time: "",
-      leet_url: "https://leetcode.com/problems/zigzag-conversion/",
-      comfort: 2,
-      status: "completed",
-    },
-    {
-      id: "1",
-      name: "Two Sum",
-      difficulty: "easy",
-      problem_type: "Array",
-      notes: "This is a test note",
-      last_solved: "2021-01-01",
-      best_time: "",
-      leet_url: "https://leetcode.com/problems/two-sum/",
-      comfort: 0,
-      status: "completed",
-    },
-  ];
+  const {
+    isPending,
+    error,
+    data = [],
+  } = useQuery({
+    queryKey: ["airtableProblems"],
+    queryFn: () => airtableService.getAllProblems(),
+  });
 
   return (
     <div className="flex flex-col gap-4 items-center text-white w-full">
@@ -45,7 +30,7 @@ export function Dashboard() {
         <BasicButton
           title="Weak"
           onClick={() => {}}
-          color="bg-gradient-to-r from-teal-400 to-yellow-200"
+          color="bg-gradient-to-r from-amber-200 to-yellow-500"
         />
         <BasicButton
           title="Lists"
@@ -53,7 +38,8 @@ export function Dashboard() {
           color="bg-gradient-to-r from-teal-400 to-yellow-200"
         />
       </div>
-      {user && <PieChart data={data} />}
+      <DifficultyPieChart data={data} height={180} />
+      <ComfortPieChart data={data} height={180} />
     </div>
   );
 }

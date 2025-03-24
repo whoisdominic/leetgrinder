@@ -1,2 +1,3 @@
 export { customTheme } from "./theme";
-export { PieChart } from "./Pie";
+export { DifficultyPieChart } from "./DifficultyPieChart";
+export { ComfortPieChart } from "./ComfortPieChart";
