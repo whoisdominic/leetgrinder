@@ -53,7 +53,7 @@ const ProblemStats: React.FC<{ problem: AirtableProblem }> = ({ problem }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4 bg-gray-800/50 p-4 rounded-lg w-full">
+    <div className="flex flex-col gap-4 bg-gray-800/50 p-4 rounded-lg w-full shadow-xs">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-medium">Last Drilled:</h3>
@@ -141,7 +141,7 @@ export function ActiveProblem() {
   });
 
   const addProblemMutation = useMutation({
-    mutationFn: (problem: Omit<AirtableProblem, "id">) =>
+    mutationFn: (problem: Omit<AirtableProblem, "id" | "Last drilled">) =>
       airtableService.addProblemToAirtable(problem),
   });
 
@@ -162,14 +162,13 @@ export function ActiveProblem() {
 
   const handleAddProblem = () => {
     if (!activeProblem || !activeProblemDifficulty) return;
-    const problemPayload: Omit<AirtableProblem, "id"> = {
+    const problemPayload: Omit<AirtableProblem, "id" | "Last drilled"> = {
       Name: transformProblemName(activeProblem || ""),
       Difficulty: activeProblemDifficulty,
       Comfort: 1,
       "Problem Link": `https://leetcode.com/problems/${activeProblem}/description/`,
       type: [],
       "Problem Sets": [],
-      "Last drilled": "",
     };
 
     addProblemMutation.mutate(problemPayload, {
@@ -194,7 +193,7 @@ export function ActiveProblem() {
     <div className="flex flex-col gap-4 items-center text-white w-full">
       {isLeetCodeProblem && activeProblem ? (
         <div className="w-full max-w-md">
-          <div className="bg-gray-800/50 p-4 rounded-lg">
+          <div className="bg-gray-800/50 p-4 rounded-lg shadow-xs">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">
                 {transformProblemName(activeProblem)}

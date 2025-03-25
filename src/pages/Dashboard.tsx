@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   BasicButton,
   DifficultyPieChart,
@@ -19,17 +19,31 @@ export function Dashboard() {
     queryFn: () => airtableService.getAllProblems(),
   });
 
+  const handleGetRandomWeakProblem = useMutation({
+    mutationFn: () => airtableService.getRandomWeakProblem(1),
+    onSuccess: (data) => {
+      window.open(data["Problem Link"], "_blank");
+    },
+  });
+
+  const handleGetRandomDrillProblem = useMutation({
+    mutationFn: () => airtableService.getRandomWeakProblem(3),
+    onSuccess: (data) => {
+      window.open(data["Problem Link"], "_blank");
+    },
+  });
+
   return (
     <div className="flex flex-col gap-4 items-center text-white w-full">
       <div className="flex justify-between w-full px-4">
         <BasicButton
-          title="Daily"
+          title="Drill"
           color="bg-gradient-to-r from-teal-400 to-yellow-200"
-          onClick={() => {}}
+          onClick={handleGetRandomDrillProblem.mutate}
         />
         <BasicButton
           title="Weak"
-          onClick={() => {}}
+          onClick={handleGetRandomWeakProblem.mutate}
           color="bg-gradient-to-r from-amber-200 to-yellow-500"
         />
         <BasicButton

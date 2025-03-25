@@ -176,7 +176,9 @@ class AirtableService {
     }
   }
 
-  async addProblemToAirtable(problem: Omit<AirtableProblem, "id">) {
+  async addProblemToAirtable(
+    problem: Omit<AirtableProblem, "id" | "Last drilled">
+  ) {
     try {
       // Check if the problem already exists
       const existingProblem = await this.getProblemByName(problem.Name);
@@ -197,6 +199,19 @@ class AirtableService {
       };
     } catch (error) {
       console.error("Error adding problem to airtable:", error);
+      throw error;
+    }
+  }
+
+  async getRandomWeakProblem(weakness: Comfort): Promise<AirtableProblem> {
+    try {
+      const problems = await this.getAllProblems();
+      const weakProblems = problems.filter(
+        (problem) => problem.Comfort === weakness
+      );
+      return weakProblems[Math.floor(Math.random() * weakProblems.length)];
+    } catch (error) {
+      console.error("Error fetching random weak problem:", error);
       throw error;
     }
   }
