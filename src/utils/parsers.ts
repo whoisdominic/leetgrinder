@@ -1,4 +1,14 @@
 /**
+ * Converts a problem name to handle Roman numerals correctly
+ * @param name - The problem name to process
+ * @returns The processed problem name with correct Roman numeral capitalization
+ */
+function processProblemName(name: string): string {
+  // Handle Roman numerals at the end of the problem name
+  return name.replace(/-i+$/, (match) => match.toUpperCase());
+}
+
+/**
  * Parses a LeetCode URL to extract the problem name.
  *
  * @param url - The LeetCode URL to parse
@@ -31,7 +41,7 @@ export function parseLeetCodeUrl(url: string): string | null {
 
     // The URL format should be /problems/problem-name/... (could include editorial, solution, description, etc.)
     if (pathParts.length >= 2 && pathParts[0] === "problems") {
-      return pathParts[1];
+      return processProblemName(pathParts[1]);
     }
 
     return null;

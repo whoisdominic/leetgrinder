@@ -1,4 +1,7 @@
 import Airtable from "airtable";
+import { format } from "date-fns";
+
+type SelectedType = "weakest" | "drill" | "random";
 
 export enum Difficulty {
   Easy = "Easy",
@@ -122,9 +125,12 @@ class AirtableService {
 
   async updateComfort(problemId: string, comfort: Comfort) {
     try {
+      const today = new Date();
+      const localDate = format(today, "yyyy-MM-dd");
+
       await this.base("All Problems").update(problemId, {
         Comfort: comfort,
-        "Last drilled": new Date().toISOString().split("T")[0],
+        "Last drilled": localDate,
       });
     } catch (error) {
       console.error("Error updating comfort:", error);
@@ -209,9 +215,76 @@ class AirtableService {
       const weakProblems = problems.filter(
         (problem) => problem.Comfort === weakness
       );
-      return weakProblems[Math.floor(Math.random() * weakProblems.length)];
+
+      // Separate problems into never drilled and previously drilled
+      const neverDrilledProblems = weakProblems.filter(
+        (problem) => !problem["Last drilled"]
+      );
+      const drilledProblems = weakProblems.filter(
+        (problem) => problem["Last drilled"]
+      );
+
+      // Sort drilled problems by last drilled date (oldest first)
+      const sortedDrilledProblems = drilledProblems.sort((a, b) => {
+        return (
+          new Date(a["Last drilled"]).getTime() -
+          new Date(b["Last drilled"]).getTime()
+        );
+      });
+
+      if (neverDrilledProblems.length > 0) {
+        // Pick a random problem from never drilled problems
+        const randomIndex = Math.floor(
+          Math.random() * neverDrilledProblems.length
+        );
+        return neverDrilledProblems[randomIndex];
+      } else if (sortedDrilledProblems.length > 0) {
+        // Return the oldest drilled problem
+        return sortedDrilledProblems[0];
+      }
+
+      throw new Error(`No problems found with comfort level ${weakness}`);
     } catch (error) {
       console.error("Error fetching random weak problem:", error);
+      throw error;
+    }
+  }
+
+  async getRandomProblemByType(
+    type: ProblemType,
+    selectedType: SelectedType
+  ): Promise<AirtableProblem> {
+    try {
+      const problems = await this.getAllProblems();
+      let filteredProblems = problems.filter(
+        (problem) => problem.type?.includes(type) ?? false
+      );
+
+      // Further filter based on selectedType
+      if (selectedType === "drill") {
+        filteredProblems = filteredProblems.filter(
+          (problem) => problem.Comfort === 3
+        );
+      } else if (selectedType === "weakest") {
+        filteredProblems = filteredProblems.filter(
+          (problem) => problem.Comfort <= 2
+        );
+      } else if (selectedType === "random") {
+        filteredProblems = filteredProblems.filter(
+          (problem) => problem.Comfort >= 1
+        );
+      }
+
+      if (filteredProblems.length === 0) {
+        throw new Error(
+          `No problems found with type ${type} and selected criteria ${selectedType}`
+        );
+      }
+
+      const randomIndex = Math.floor(Math.random() * filteredProblems.length);
+      return filteredProblems[randomIndex];
+    } catch (error) {
+      console.error("Error fetching random problem by type:", error);
       throw error;
     }
   }

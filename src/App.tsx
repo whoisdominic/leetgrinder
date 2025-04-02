@@ -1,8 +1,7 @@
 import { MemoryRouter as Router, Routes, Route } from "react-router-dom";
 import { Header } from "./components";
 import { Settings } from "./pages/Settings/Settings";
-import { Dashboard } from "./pages/Dashboard";
-import { ActiveProblem } from "./pages/ActiveProblem";
+import { Dashboard, ActiveProblem, ProblemTypes } from "./pages";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -18,6 +17,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/problem" element={<ActiveProblem />} />
+            <Route path="/types" element={<ProblemTypes />} />
           </Routes>
         </div>
       </Router>

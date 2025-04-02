@@ -6,6 +6,10 @@ interface BasicButtonProps {
   color?: string;
 }
 
+interface RadioButtonProps extends BasicButtonProps {
+  selected?: boolean;
+}
+
 export function BasicButton({
   title,
   onClick,
@@ -21,5 +25,27 @@ export function BasicButton({
     >
       {title}
     </button>
+  );
+}
+
+export function RadioButton({
+  title,
+  onClick,
+  disabled,
+  loading,
+  color,
+  selected,
+}: RadioButtonProps) {
+  return (
+    <div className="flex items-center cursor-pointer" onClick={onClick}>
+      <div
+        className={`w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center ${
+          selected ? "border-2 border-cyan-600" : ""
+        }`}
+      >
+        {selected && <div className="w-2 h-2 rounded-full bg-cyan-500"></div>}
+      </div>
+      <span className="ml-2 text-white font-medium">{title}</span>
+    </div>
   );
 }

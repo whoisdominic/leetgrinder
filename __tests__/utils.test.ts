@@ -13,6 +13,9 @@ describe("parseLeetCodeUrl", () => {
     expect(
       parseLeetCodeUrl("https://leetcode.com/problems/merge-intervals/")
     ).toBe("merge-intervals");
+    expect(parseLeetCodeUrl("https://leetcode.com/problems/subsets-ii/")).toBe(
+      "subsets-II"
+    );
   });
 
   it("should return null for non-LeetCode URLs", () => {
