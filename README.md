@@ -18,7 +18,7 @@ A Chrome extension to help you track and improve your LeetCode problem-solving s
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/leetgrinder.git
+   git clone https://github.com/whoisdominic/leetgrinder.git
    cd leetgrinder
    ```
 
