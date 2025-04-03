@@ -43,7 +43,7 @@ export interface AirtableProblem {
   type: ProblemType[];
   "Problem Sets": string[];
   "Last drilled": string;
-  Icebox: boolean;
+  Icebox: "true" | "false";
 }
 
 class AirtableService {
@@ -144,7 +144,7 @@ class AirtableService {
             type: record.get("type") as ProblemType[],
             "Problem Sets": this.resolveProblemSetNames(problemSetIds),
             "Last drilled": record.get("Last drilled") as string,
-            Icebox: record.get("Icebox") === "true" ? true : false,
+            Icebox: record.get("Icebox") as "true" | "false",
           };
           console.log("Icebox", record.get("Icebox"));
 
@@ -241,7 +241,7 @@ class AirtableService {
         type: (records[0].get("type") as ProblemType[]) || [],
         "Problem Sets": this.resolveProblemSetNames(problemSetIds),
         "Last drilled": records[0].get("Last drilled") as string,
-        Icebox: records[0].get("Icebox") === "true" ? true : false,
+        Icebox: records[0].get("Icebox") as "true" | "false",
       };
     } catch (error) {
       console.error("Error fetching problem by name:", error);

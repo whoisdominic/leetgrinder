@@ -185,7 +185,7 @@ export function ActiveProblem() {
       "Problem Link": `https://leetcode.com/problems/${activeProblem}/description/`,
       type: [],
       "Problem Sets": [],
-      Icebox: false,
+      Icebox: "false",
     };
 
     addProblemMutation.mutate(problemPayload, {
@@ -220,7 +220,7 @@ export function ActiveProblem() {
       {isLeetCodeProblem && activeProblem ? (
         <div className="w-full max-w-md">
           <div className="bg-gray-800/50 p-4 rounded-lg shadow-xs ">
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
               <h3 className="text-lg font-medium">
                 {transformProblemName(activeProblem)}
               </h3>
