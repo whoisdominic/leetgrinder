@@ -5,6 +5,7 @@ A Chrome extension to help you track and improve your LeetCode problem-solving s
 ## Roadmap
 
 - [ ] Update airtable template to include Blind 75 questions
+- [ ] Submit to Chrome Web Store
 - [ ] Add a ability to auto add Companies
 - [ ] Add a ability to auto add problem types
 
