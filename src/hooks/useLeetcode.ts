@@ -87,9 +87,6 @@ export function useLeetcode({
           setActiveProblemType([]);
         }
       } else {
-        console.log(
-          "Not on LeetCode or no tab ID, setting difficulty and types to null"
-        );
         setActiveProblemDifficulty(null);
         setActiveProblemType([]);
       }

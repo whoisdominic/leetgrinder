@@ -5,11 +5,12 @@ import {
   DifficultyPieChart,
   ComfortPieChart,
 } from "../components";
-import { useLeetcode } from "../hooks";
+import { useLeetcode, useAirtableAuth } from "../hooks";
 import airtableService from "../services/AirtableService";
 
 export function Dashboard() {
   useLeetcode({ autoNavigate: true });
+  useAirtableAuth();
 
   const navigate = useNavigate();
 
@@ -42,25 +43,40 @@ export function Dashboard() {
 
   return (
     <div className="flex flex-col gap-4 items-center text-white w-full">
-      <div className="flex justify-between w-full px-4">
-        <BasicButton
-          title="Drill"
-          color="bg-gradient-to-r from-teal-400 to-yellow-200"
-          onClick={handleGetRandomDrillProblem.mutate}
-        />
-        <BasicButton
-          title="Weak"
-          onClick={handleGetRandomWeakProblem.mutate}
-          color="bg-gradient-to-r from-amber-200 to-yellow-500"
-        />
-        <BasicButton
-          title="Types"
-          onClick={handleNavigateToTypes}
-          color="bg-gradient-to-r from-teal-400 to-yellow-200"
-        />
-      </div>
-      <DifficultyPieChart data={data} height={180} />
-      <ComfortPieChart data={data} height={180} />
+      {isPending && (
+        <div className="flex flex-col items-center justify-center w-full h-[80vh]">
+          <div className="animate-spin text-8xl">😱</div>
+          <div className="text-2xl font-bold mt-4">Loading...</div>
+        </div>
+      )}
+      {error && (
+        <div className="text-red-500 text-2xl font-bold">
+          Error: {error.message}
+        </div>
+      )}
+      {data && !isPending && !error && (
+        <div className="flex flex-col gap-4 items-center text-white w-full">
+          <div className="flex justify-between w-full px-4">
+            <BasicButton
+              title="Drill"
+              color="bg-gradient-to-r from-teal-400 to-yellow-200"
+              onClick={handleGetRandomDrillProblem.mutate}
+            />
+            <BasicButton
+              title="Weak"
+              onClick={handleGetRandomWeakProblem.mutate}
+              color="bg-gradient-to-r from-amber-200 to-yellow-500"
+            />
+            <BasicButton
+              title="Types"
+              onClick={handleNavigateToTypes}
+              color="bg-gradient-to-r from-teal-400 to-yellow-200"
+            />
+          </div>
+          <DifficultyPieChart data={data} height={180} />
+          <ComfortPieChart data={data} height={180} />
+        </div>
+      )}
     </div>
   );
 }

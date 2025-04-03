@@ -1,5 +1,6 @@
 import Airtable from "airtable";
 import { format } from "date-fns";
+import { useAppStore } from "../state";
 
 type SelectedType = "weakest" | "drill" | "random";
 
@@ -47,20 +48,56 @@ export interface AirtableProblem {
 class AirtableService {
   private baseId: string;
   private apiKey: string;
-  private base: Airtable.Base;
+  private base: Airtable.Base | null = null;
   private problemSetsCache: Map<string, string> = new Map();
 
-  constructor() {
-    this.baseId = import.meta.env.VITE_AIRTABLE_BASE_ID;
-    this.apiKey = import.meta.env.VITE_AIRTABLE_API_KEY;
+  constructor(apiKey: string = "", baseId: string = "") {
+    const { airtableApiKey, airtableBaseName } = useAppStore.getState();
+    this.apiKey = apiKey || airtableApiKey;
+    this.baseId = baseId || airtableBaseName;
+    if (this.canMakeRequests) {
+      this.initializeBase();
+    }
+    console.log("AirtableService constructor", this.apiKey, this.baseId);
+  }
+
+  private initializeBase() {
     this.base = new Airtable({ apiKey: this.apiKey }).base(this.baseId);
+  }
+
+  private get canMakeRequests(): boolean {
+    return !!this.apiKey && !!this.baseId;
+  }
+
+  private getBase(): Airtable.Base {
+    if (!this.canMakeRequests) {
+      throw new Error(
+        "Airtable credentials not set. Please set API key and base ID first."
+      );
+    }
+    if (!this.base) {
+      this.initializeBase();
+    }
+    return this.base!;
+  }
+
+  updateCredentials(apiKey: string, baseId: string) {
+    this.apiKey = apiKey;
+    this.baseId = baseId;
+    if (this.canMakeRequests) {
+      this.initializeBase();
+    }
+    // Clear caches when credentials change
+    this.problemSetsCache.clear();
+    this.problemsCache.clear();
+    this.lastProblemsFetchTime = 0;
   }
 
   private async loadProblemSets() {
     if (this.problemSetsCache.size > 0) return;
 
     try {
-      const records = await this.base("Problem Sets").select().all();
+      const records = await this.getBase()("Problem Sets").select().all();
       records.forEach((record) => {
         this.problemSetsCache.set(record.id, record.get("Name") as string);
       });
@@ -76,6 +113,7 @@ class AirtableService {
     if (!problemSetIds) return [];
     return problemSetIds.map((id) => this.problemSetsCache.get(id) || id);
   }
+
   private problemsCache: Map<string, AirtableProblem> = new Map();
   private lastProblemsFetchTime: number = 0;
   private readonly CACHE_TTL = 1000 * 60 * 5; // 5 minutes cache TTL
@@ -91,7 +129,7 @@ class AirtableService {
         now - this.lastProblemsFetchTime > this.CACHE_TTL;
 
       if (shouldRefreshCache) {
-        const records = await this.base("All Problems").select().all();
+        const records = await this.getBase()("All Problems").select().all();
         this.problemsCache.clear();
 
         records.forEach((record) => {
@@ -128,7 +166,7 @@ class AirtableService {
       const today = new Date();
       const localDate = format(today, "yyyy-MM-dd");
 
-      await this.base("All Problems").update(problemId, {
+      await this.getBase()("All Problems").update(problemId, {
         Comfort: comfort,
         "Last drilled": localDate,
       });
@@ -140,7 +178,13 @@ class AirtableService {
 
   async updateProblem(problemId: string, updatedProblem: AirtableProblem) {
     try {
-      await this.base("All Problems").update(problemId, {
+      if (!this.canMakeRequests) {
+        console.error(
+          "Airtable credentials not set. Please set API key and base ID first."
+        );
+        return;
+      }
+      await this.getBase()("All Problems").update(problemId, {
         ...updatedProblem,
       });
     } catch (error) {
@@ -150,11 +194,18 @@ class AirtableService {
   }
 
   async getProblemByName(name: string): Promise<AirtableProblem | null> {
-    console.log("getProblemByName", name);
+    if (!this.canMakeRequests) {
+      console.error(
+        "Airtable credentials not set. Please set API key and base ID first."
+      );
+      throw new Error(
+        "Airtable credentials not set. Please set API key and base ID first."
+      );
+    }
     try {
       await this.loadProblemSets();
 
-      const records = await this.base("All Problems")
+      const records = await this.getBase()("All Problems")
         .select({
           filterByFormula: `{Name} = '${name}'`,
         })
@@ -185,6 +236,14 @@ class AirtableService {
   async addProblemToAirtable(
     problem: Omit<AirtableProblem, "id" | "Last drilled">
   ) {
+    if (!this.canMakeRequests) {
+      console.error(
+        "Airtable credentials not set. Please set API key and base ID first."
+      );
+      throw new Error(
+        "Airtable credentials not set. Please set API key and base ID first."
+      );
+    }
     try {
       // Check if the problem already exists
       const existingProblem = await this.getProblemByName(problem.Name);
@@ -195,7 +254,7 @@ class AirtableService {
       }
 
       // If problem doesn't exist, create it
-      const createdRecord = await this.base("All Problems").create({
+      const createdRecord = await this.getBase()("All Problems").create({
         ...problem,
       });
 
@@ -211,6 +270,14 @@ class AirtableService {
 
   async getRandomWeakProblem(weakness: Comfort): Promise<AirtableProblem> {
     try {
+      if (!this.canMakeRequests) {
+        console.error(
+          "Airtable credentials not set. Please set API key and base ID first."
+        );
+        throw new Error(
+          "Airtable credentials not set. Please set API key and base ID first."
+        );
+      }
       const problems = await this.getAllProblems();
       const weakProblems = problems.filter(
         (problem) => problem.Comfort === weakness
@@ -255,34 +322,59 @@ class AirtableService {
     selectedType: SelectedType
   ): Promise<AirtableProblem> {
     try {
+      if (!this.canMakeRequests) {
+        console.error(
+          "Airtable credentials not set. Please set API key and base ID first."
+        );
+        throw new Error(
+          "Airtable credentials not set. Please set API key and base ID first."
+        );
+      }
       const problems = await this.getAllProblems();
-      let filteredProblems = problems.filter(
-        (problem) => problem.type?.includes(type) ?? false
+      const typeProblems = problems.filter((problem) =>
+        problem.type.includes(type)
       );
 
-      // Further filter based on selectedType
-      if (selectedType === "drill") {
-        filteredProblems = filteredProblems.filter(
-          (problem) => problem.Comfort === 3
-        );
-      } else if (selectedType === "weakest") {
-        filteredProblems = filteredProblems.filter(
-          (problem) => problem.Comfort <= 2
-        );
-      } else if (selectedType === "random") {
-        filteredProblems = filteredProblems.filter(
-          (problem) => problem.Comfort >= 1
-        );
+      if (typeProblems.length === 0) {
+        throw new Error(`No problems found with type ${type}`);
       }
 
-      if (filteredProblems.length === 0) {
-        throw new Error(
-          `No problems found with type ${type} and selected criteria ${selectedType}`
-        );
-      }
+      switch (selectedType) {
+        case "weakest":
+          // Find problems with lowest comfort level
+          const minComfort = Math.min(...typeProblems.map((p) => p.Comfort));
+          const weakestProblems = typeProblems.filter(
+            (p) => p.Comfort === minComfort
+          );
+          return weakestProblems[
+            Math.floor(Math.random() * weakestProblems.length)
+          ];
 
-      const randomIndex = Math.floor(Math.random() * filteredProblems.length);
-      return filteredProblems[randomIndex];
+        case "drill":
+          // Find problems that haven't been drilled recently
+          const today = new Date();
+          const drilledProblems = typeProblems.filter((problem) => {
+            if (!problem["Last drilled"]) return true;
+            const lastDrilled = new Date(problem["Last drilled"]);
+            return (
+              today.getTime() - lastDrilled.getTime() > 7 * 24 * 60 * 60 * 1000
+            ); // 7 days
+          });
+
+          if (drilledProblems.length === 0) {
+            throw new Error(`No problems found with type ${type} to drill`);
+          }
+
+          return drilledProblems[
+            Math.floor(Math.random() * drilledProblems.length)
+          ];
+
+        case "random":
+          return typeProblems[Math.floor(Math.random() * typeProblems.length)];
+
+        default:
+          throw new Error(`Invalid selected type: ${selectedType}`);
+      }
     } catch (error) {
       console.error("Error fetching random problem by type:", error);
       throw error;
@@ -290,6 +382,7 @@ class AirtableService {
   }
 }
 
+// Create a singleton instance
 export const airtableService = new AirtableService();
 
 export default airtableService;

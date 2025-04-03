@@ -10,6 +10,7 @@ import airtableService, {
   ProblemType,
 } from "../services/AirtableService";
 import { differenceInDays, isToday, parseISO } from "date-fns";
+import { useAirtableAuth } from "../hooks/useAirtableAuth";
 
 const ProblemStats: React.FC<{ problem: AirtableProblem }> = ({ problem }) => {
   const getDifficultyColor = (difficulty: string) => {
@@ -104,6 +105,7 @@ const ProblemStats: React.FC<{ problem: AirtableProblem }> = ({ problem }) => {
 };
 
 export function ActiveProblem() {
+  useAirtableAuth();
   const isLeetCodeProblem = useAppStore((state) => state.isLeetCodeProblem);
   const activeProblem = useAppStore((state) => state.activeProblem);
   const activeProblemDifficulty = useAppStore(

@@ -2,10 +2,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import airtableService, { ProblemType } from "../services/AirtableService";
 import { BasicButton, RadioButton } from "../components";
-
+import { useAirtableAuth } from "../hooks";
 type SelectedType = "weakest" | "drill" | "random";
 
 export const ProblemTypes = () => {
+  useAirtableAuth();
+
   const {
     isPending,
     error,
