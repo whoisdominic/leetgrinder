@@ -39,7 +39,7 @@ export function RadioButton({
   return (
     <div className="flex items-center cursor-pointer" onClick={onClick}>
       <div
-        className={`w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center ${
+        className={`w-4 h-2 rounded-full border border-gray-400 flex items-center justify-center ${
           selected ? "border-2 border-cyan-600" : ""
         }`}
       >

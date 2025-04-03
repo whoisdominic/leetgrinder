@@ -48,7 +48,7 @@ Along with your base ID in the `Airtable Base ID` field.
 
 You can find your base ID in the URL of your base. For example:
 
-```
+```bash
 airtable.com/{YOUR_BASE_ID_IS_HERE}/{IGNORE_TABLE_ID}
 ```
 

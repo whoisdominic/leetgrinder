@@ -36,6 +36,12 @@ export function Dashboard() {
       window.open(data["Problem Link"], "_blank");
     },
   });
+  const handleGetRandomIceboxProblem = useMutation({
+    mutationFn: () => airtableService.getRandomIceboxProblem(),
+    onSuccess: (data) => {
+      window.open(data["Problem Link"], "_blank");
+    },
+  });
 
   const handleNavigateToTypes = () => {
     navigate("/types");
@@ -56,7 +62,12 @@ export function Dashboard() {
       )}
       {data && !isPending && !error && (
         <div className="flex flex-col gap-4 items-center text-white w-full">
-          <div className="flex justify-between w-full px-4">
+          <div className="flex justify-between w-full px-2">
+            <BasicButton
+              title="ICE"
+              color="bg-gradient-to-r from-blue-800 to-slate-600"
+              onClick={handleGetRandomIceboxProblem.mutate}
+            />
             <BasicButton
               title="Drill"
               color="bg-gradient-to-r from-teal-400 to-yellow-200"

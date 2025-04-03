@@ -43,6 +43,7 @@ export interface AirtableProblem {
   type: ProblemType[];
   "Problem Sets": string[];
   "Last drilled": string;
+  Icebox: boolean;
 }
 
 class AirtableService {
@@ -143,7 +144,10 @@ class AirtableService {
             type: record.get("type") as ProblemType[],
             "Problem Sets": this.resolveProblemSetNames(problemSetIds),
             "Last drilled": record.get("Last drilled") as string,
+            Icebox: record.get("Icebox") === "true" ? true : false,
           };
+          console.log("Icebox", record.get("Icebox"));
+
           this.problemsCache.set(problem.Name, problem);
         });
 
@@ -172,6 +176,17 @@ class AirtableService {
       });
     } catch (error) {
       console.error("Error updating comfort:", error);
+      throw error;
+    }
+  }
+
+  async updateIcebox(problemId: string, icebox: "true" | "false") {
+    try {
+      await this.getBase()("All Problems").update(problemId, {
+        Icebox: icebox,
+      });
+    } catch (error) {
+      console.error("Error updating icebox:", error);
       throw error;
     }
   }
@@ -226,6 +241,7 @@ class AirtableService {
         type: (records[0].get("type") as ProblemType[]) || [],
         "Problem Sets": this.resolveProblemSetNames(problemSetIds),
         "Last drilled": records[0].get("Last drilled") as string,
+        Icebox: records[0].get("Icebox") === "true" ? true : false,
       };
     } catch (error) {
       console.error("Error fetching problem by name:", error);
@@ -377,6 +393,17 @@ class AirtableService {
       }
     } catch (error) {
       console.error("Error fetching random problem by type:", error);
+      throw error;
+    }
+  }
+
+  async getRandomIceboxProblem(): Promise<AirtableProblem> {
+    try {
+      const problems = await this.getAllProblems();
+      const iceboxProblems = problems.filter((problem) => problem.Icebox);
+      return iceboxProblems[Math.floor(Math.random() * iceboxProblems.length)];
+    } catch (error) {
+      console.error("Error fetching random icebox problem:", error);
       throw error;
     }
   }

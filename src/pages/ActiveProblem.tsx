@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BasicButton, Stars } from "../components";
+import { BasicButton, RadioButton, Stars } from "../components";
 import { useAppStore } from "../state/store";
 import { transformProblemName } from "../utils";
 import { useNavigate } from "react-router-dom";
@@ -142,6 +142,20 @@ export function ActiveProblem() {
     },
   });
 
+  const updateIceboxMutation = useMutation({
+    mutationFn: ({
+      problemId,
+      icebox,
+    }: {
+      problemId: string;
+      icebox: "true" | "false";
+    }) => airtableService.updateIcebox(problemId, icebox),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["problem", activeProblem] });
+      queryClient.invalidateQueries({ queryKey: ["airtableProblems"] });
+    },
+  });
+
   const addProblemMutation = useMutation({
     mutationFn: (problem: Omit<AirtableProblem, "id" | "Last drilled">) =>
       airtableService.addProblemToAirtable(problem),
@@ -171,6 +185,7 @@ export function ActiveProblem() {
       "Problem Link": `https://leetcode.com/problems/${activeProblem}/description/`,
       type: [],
       "Problem Sets": [],
+      Icebox: false,
     };
 
     addProblemMutation.mutate(problemPayload, {
@@ -185,6 +200,15 @@ export function ActiveProblem() {
     });
   };
 
+  const handleToggleIcebox = () => {
+    if (problem?.id) {
+      updateIceboxMutation.mutate({
+        problemId: problem.id,
+        icebox: problem.Icebox ? "false" : "true",
+      });
+    }
+  };
+
   useEffect(() => {
     if (!isLeetCodeProblem || !activeProblem) {
       navigate("/");
@@ -195,7 +219,7 @@ export function ActiveProblem() {
     <div className="flex flex-col gap-4 items-center text-white w-full">
       {isLeetCodeProblem && activeProblem ? (
         <div className="w-full max-w-md">
-          <div className="bg-gray-800/50 p-4 rounded-lg shadow-xs">
+          <div className="bg-gray-800/50 p-4 rounded-lg shadow-xs ">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">
                 {transformProblemName(activeProblem)}
@@ -206,6 +230,47 @@ export function ActiveProblem() {
                 disabled={updateComfortMutation.isPending || isLoadingProblem}
                 isLoading={updateComfortMutation.isPending || isLoadingProblem}
               />
+            </div>
+            <div className="flex items-center mt-2">
+              {updateIceboxMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  <span>Updating...</span>
+                </div>
+              ) : problem?.Icebox ? (
+                <h2
+                  className="text-3xl font-medium cursor-pointer"
+                  onClick={handleToggleIcebox}
+                >
+                  🧊
+                </h2>
+              ) : (
+                <h2
+                  className="bg-blue-600 rounded-md px-2 py-1 m font-medium cursor-pointer"
+                  onClick={handleToggleIcebox}
+                >
+                  Add to Icebox
+                </h2>
+              )}
             </div>
           </div>
         </div>
