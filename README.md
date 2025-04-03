@@ -27,7 +27,7 @@ A Chrome extension to help you track and improve your LeetCode problem-solving s
 
 **‼️‼️‼️ Requires an Airtable account with the following base ‼️‼️‼️:**
 
-You can create a new base with the following [template]("https://airtable.com/invite/l?inviteId=invmvNQDujNPrxpxb&inviteToken=e819c6afcd9516e4304ffb71fa14027ebd3bd882c499e45ed8f0e0906512b876&utm_medium=email&utm_source=product_team&utm_content=transactional-alerts")
+[You can create a new base with the following template](https://airtable.com/invite/l?inviteId=invmvNQDujNPrxpxb&inviteToken=e819c6afcd9516e4304ffb71fa14027ebd3bd882c499e45ed8f0e0906512b876&utm_medium=email&utm_source=product_team&utm_content=transactional-alerts)
 
 Select the "Duplicate base" option.
 
