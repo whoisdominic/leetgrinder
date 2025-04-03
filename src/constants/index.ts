@@ -1,3 +1,1 @@
-export const Flags = {
-  auth_enabled: false,
-};
+export const Flags = {};

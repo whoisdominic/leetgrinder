@@ -2,6 +2,16 @@
 
 A Chrome extension to help you track and improve your LeetCode problem-solving skills.
 
+Requires an Airtable account with the following base:
+
+You can create a new base with the following [template]("")
+
+## Roadmap
+
+- [ ] Update airtable template to include Blind 75 questions
+- [ ] Add a ability to auto add Companies
+- [ ] Add a ability to auto add problem types
+
 ## Installation
 
 ### From GitHub Releases (Recommended)

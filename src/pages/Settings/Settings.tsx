@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Flags } from "../../constants";
-import { SupaLoginForm } from "./SupaLoginForm";
 import { useAppStore } from "../../state/store";
 import { useAirtable } from "../../hooks/useAirtable";
 
@@ -123,8 +121,6 @@ export function Settings() {
           </div>
         )}
       </form>
-
-      {Flags.auth_enabled && <SupaLoginForm />}
     </div>
   );
 }
