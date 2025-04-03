@@ -62,7 +62,7 @@ export function Settings() {
             htmlFor="airtableBaseName"
             className="block text-sm font-medium"
           >
-            Airtable Base Name
+            Airtable Base ID
           </label>
           <input
             type="text"

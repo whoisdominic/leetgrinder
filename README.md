@@ -2,10 +2,6 @@
 
 A Chrome extension to help you track and improve your LeetCode problem-solving skills.
 
-Requires an Airtable account with the following base:
-
-You can create a new base with the following [template]("")
-
 ## Roadmap
 
 - [ ] Update airtable template to include Blind 75 questions
@@ -23,7 +19,34 @@ You can create a new base with the following [template]("")
 5. Enable "Developer mode" in the top right
 6. Click "Load unpacked" and select the extracted folder
 
-### Development Installation
+**‼️‼️‼️ Requires an Airtable account with the following base ‼️‼️‼️:**
+
+You can create a new base with the following [template]("https://airtable.com/invite/l?inviteId=invmvNQDujNPrxpxb&inviteToken=e819c6afcd9516e4304ffb71fa14027ebd3bd882c499e45ed8f0e0906512b876&utm_medium=email&utm_source=product_team&utm_content=transactional-alerts")
+
+Select the "Duplicate base" option.
+
+![Airtable Duplicate Base](docs/duplicate_screenshot.png)
+
+![Airtable Duplicate Base 2](docs/duplicate_screenshot_2.png)
+
+Then you'll want to create a new access token with the following permissions:
+
+- **Data access permissions**: Make sure to grant the following permissions to your token:
+  - data.records:read
+  - data.records:write
+
+![Airtable Token Permissions](docs/token_screenshot.png)
+
+Click the gear ⚙️ icon in LeetGrinder extension and paste your key in the `Airtable API Key` field.
+Along with your base ID in the `Airtable Base ID` field.
+
+You can find your base ID in the URL of your base. For example:
+
+```
+airtable.com/{YOUR_BASE_ID_IS_HERE}/{IGNORE_TABLE_ID}
+```
+
+## Development Installation
 
 1. Clone the repository:
 
