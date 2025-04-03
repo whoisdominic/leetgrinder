@@ -2,6 +2,11 @@
 
 A Chrome extension to help you track and improve your LeetCode problem-solving skills.
 
+![LeetGrinder](docs/leetgrinder_screenshot.png)
+![LeetGrinder](docs/leetgrinder_screenshot_2.png)
+![LeetGrinder](docs/leetgrinder_screenshot_3.png)
+![LeetGrinder](docs/leetgrinder_screenshot_4.png)
+
 ## Roadmap
 
 - [ ] Update airtable template to include Blind 75 questions
@@ -79,6 +84,10 @@ airtable.com/{YOUR_BASE_ID_IS_HERE}/{IGNORE_TABLE_ID}
 - Rate your comfort level with each problem
 - Get personalized problem recommendations
 - Sync your data with Airtable
+
+## How to use
+
+COMING SOON
 
 ## Development
 
