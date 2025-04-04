@@ -1,1 +1,3 @@
-export const Flags = {};
+export const Flags = {
+  icebox: true,
+};

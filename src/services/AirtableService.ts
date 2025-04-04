@@ -59,7 +59,6 @@ class AirtableService {
     if (this.canMakeRequests) {
       this.initializeBase();
     }
-    console.log("AirtableService constructor", this.apiKey, this.baseId);
   }
 
   private initializeBase() {
@@ -232,6 +231,8 @@ class AirtableService {
 
       const problemSetIds = records[0].get("Problem Sets") as string[];
 
+      console.log("Icebox");
+
       return {
         id: records[0].id,
         Name: records[0].get("Name") as string,
@@ -241,7 +242,7 @@ class AirtableService {
         type: (records[0].get("type") as ProblemType[]) || [],
         "Problem Sets": this.resolveProblemSetNames(problemSetIds),
         "Last drilled": records[0].get("Last drilled") as string,
-        Icebox: records[0].get("Icebox") as "true" | "false",
+        Icebox: String(records[0].get("Icebox")) as "true" | "false",
       };
     } catch (error) {
       console.error("Error fetching problem by name:", error);
